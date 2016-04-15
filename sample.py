@@ -10,6 +10,7 @@ from six.moves import cPickle
 from utils import TextLoader
 from model import Model
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--save_dir', type=str, default='save',
@@ -21,7 +22,10 @@ def main():
     args = parser.parse_args()
     sample(args)
 
+
 def sample(args):
+    if not os.path.exists(args.save_dir):
+        os.makedirs(args.save_dir)
     with open(os.path.join(args.save_dir, 'config.pkl'), 'rb') as f:
         saved_args = cPickle.load(f)
     with open(os.path.join(args.save_dir, 'chars_vocab.pkl'), 'rb') as f:
