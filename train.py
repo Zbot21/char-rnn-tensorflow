@@ -22,7 +22,7 @@ def main():
                         help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=2,
                         help='number of layers in the RNN')
-    parser.add_argument('--model', type=str, default='lstm',
+    parser.add_argument('--models', type=str, default='lstm',
                         help='rnn, gru, or lstm')
     parser.add_argument('--batch_size', type=int, default=50,
                         help='minibatch size')
@@ -52,12 +52,13 @@ def train(args):
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
 
-    # Save the configuration and the vocab
+    # Save the configuration and the vocab, used to reload models when sampling
     with open(os.path.join(args.save_dir, 'config.pkl'), 'wb') as f:
         cPickle.dump(args, f)
     with open(os.path.join(args.save_dir, 'chars_vocab.pkl'), 'wb') as f:
         cPickle.dump((data_loader.chars, data_loader.vocab), f)
 
+    # Create models with arguments
     model = Model(args)
 
     with tf.Session() as sess:
@@ -78,11 +79,11 @@ def train(args):
                               args.num_epochs * data_loader.num_batches,
                               e, train_loss, end - start))
                 if (e * data_loader.num_batches + b) % args.save_every == 0:
-                    checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
+                    checkpoint_path = os.path.join(args.save_dir, 'models.ckpt')
                     saver.save(sess, checkpoint_path, global_step=e * data_loader.num_batches + b)
-                    print("model saved to {}".format(checkpoint_path))
+                    print("models saved to {}".format(checkpoint_path))
         # Save the final state
-        saver.save(sess, os.path.join(args.save_dir, 'model.ckpt'),
+        saver.save(sess, os.path.join(args.save_dir, 'models.ckpt'),
                    global_step=args.num_epochs * data_loader.num_batches)
 
 
